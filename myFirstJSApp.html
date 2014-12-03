@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+
+  <script type="text/javascript">
+    window.onload = function() {
+      var out = document.getElementById("Output");
+      var out2 = document.getElementById("Output2");
+      var out3 = document.getElementById("Output3");
+
+      var page = document.getElementById("html");
+      page.innerHTML = 55;
+
+
+      //var t = test(50, 50);
+      //var t = test(70,12);
+
+      //clear();
+
+      //drawBox(100, 100, 25, 50, "black");
+
+      var numBoxes = 10;
+      var canvas = document.getElementById("myCanvas");
+      canvas.width = 200;
+      canvas.height = 200;
+
+      //Create Array
+      //grid[column][row][color, value]
+      var grid = new Array(numBoxes);
+      for (i = 0; i < numBoxes; i++) {
+        grid[i] = new Array(numBoxes);
+      }
+      // Loop through both dimensions
+      for (i = 0; i < grid.length; ++i) {
+        var entry = grid[i];
+        for (j = 0; j < entry.length; ++j) {
+          entry[j] = 0;
+        }
+      }
+
+      grid[2][3] = 140000;
+      var odds = 5;
+
+      var interval = setInterval(function(){run()}, 1000);
+
+      //run();
+      var iteration = 0;
+      function run(){
+      //while(true){
+      //Calculate change
+      iteration++;
+      out.innerHTML = iteration;
+
+      //loop through grid
+      for (i = 0; i < numBoxes; i++) {
+        for (j = 0; j < numBoxes; j++) {
+          //if number is present
+          if (grid[i][j] > 0) {
+            //and random > odds
+            if((Math.random()*10) < odds) break;
+
+            var percent = Math.floor(Math.random() * 100);
+            var decrease = grid[i][j] * (percent / 100);
+            grid[i][j] = grid[i][j] - decrease;
+
+            out2.innerHTML = decrease;
+            var sub = decrease;
+
+            var rand = Math.floor((Math.random() * 8) + 1);
+
+            // 1 2 3
+            // 4 x 5
+            // 6 7 8
+            switch (rand) {
+              case 1:
+                if (i > 0 && j > 0) grid[i - 1][j - 1] += sub;
+                break;
+              case 2:
+                if (j > 0) grid[i][j - 1] += sub;
+                break;
+              case 3:
+                if (i < numBoxes && j > 0) grid[i + 1][j - 1] += sub;
+                break;
+              case 4:
+                if (i > 0) grid[i - 1][j] += sub;
+                break;
+              case 5:
+                if (j < numBoxes) grid[i][j + 1] += sub;
+                break;
+              case 6:
+                if (i > 0 && j < numBoxes) grid[i - 1][j + 1] += sub;
+                break;
+              case 7:
+                if (j < numBoxes) grid[i][j + 1] += sub;
+                break;
+              case 8:
+                if (i < numBoxes && j < numBoxes) grid[i + 1][j + 1] += sub;
+                break;
+              default:
+                //
+            }
+            //if (grid[i][j] > 1500) grid[i][j] = 1500;
+          }
+        }
+      }
+
+
+      page.innerHTML = grid[1];
+
+      clear();
+      //do colors
+      for (i = 0; i < numBoxes; i++) {
+        for (j = 0; j < numBoxes; j++) {
+          if (grid[i][j] < 0) {
+            drawBox(i, j, "#000000", numBoxes);
+          } else if (grid[i][j] < 100) {
+            drawBox(i, j, "#100000", numBoxes);
+          } else if (grid[i][j] < 200) {
+            drawBox(i, j, "#200000", numBoxes);
+          } else if (grid[i][j] < 300) {
+            drawBox(i, j, "#300000", numBoxes);
+          } else if (grid[i][j] < 400) {
+            drawBox(i, j, "#400000", numBoxes);
+          } else if (grid[i][j] < 500) {
+            drawBox(i, j, "#500000", numBoxes);
+          } else if (grid[i][j] < 600) {
+            drawBox(i, j, "#600000", numBoxes);
+          } else if (grid[i][j] < 700) {
+            drawBox(i, j, "#700000", numBoxes);
+          } else if (grid[i][j] < 80) {
+            drawBox(i, j, "#800000", numBoxes);
+          } else if (grid[i][j] < 900) {
+            drawBox(i, j, "#900000", numBoxes);
+          } else if (grid[i][j] < 1000) {
+            drawBox(i, j, "#A00000", numBoxes);
+          } else if (grid[i][j] < 1100) {
+            drawBox(i, j, "#B00000", numBoxes);
+          } else if (grid[i][j] < 1200) {
+            drawBox(i, j, "#C00000", numBoxes);
+          } else if (grid[i][j] < 1300) {
+            drawBox(i, j, "#D00000", numBoxes);
+          } else if (grid[i][j] < 1400) {
+            drawBox(i, j, "#E00000", numBoxes);
+          } else {
+            drawBox(i, j, "#F00000", numBoxes);
+          }
+        }
+      }
+
+      
+      }
+    }
+
+
+    function test(long, high) {
+      var canvas = document.getElementById("myCanvas");
+      var ctx = canvas.getContext("2d");
+      ctx.fillStyle = 'Green';
+      ctx.fillRect(0, high, long, 30);
+    }
+
+    function drawBox(startX, startY, boxColor, numBoxes) {
+      var canvas = document.getElementById("myCanvas");
+      var ctx = canvas.getContext("2d");
+      var wOffset = canvas.width / numBoxes;
+      var hOffset = canvas.height / numBoxes;
+
+      ctx.fillStyle = boxColor;
+      ctx.fillRect(startX * wOffset + 1, startY * hOffset + 1, wOffset - 2, hOffset - 2);
+    }
+
+    function clear() {
+      var canvas = document.getElementById("myCanvas");
+      var ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#efefef";
+      ctx.fillRect(0, 0, canvas.height, canvas.width);
+    }
+  </script>
+</head>
+
+
+
+<body>
+  <h1> yes </h1>
+  Out:
+  <div id="Output"></div>
+  decrease:
+  <div id="Output2"></div>
+  Out:
+  <div id="Output3"></div>
+
+  <br />
+
+  <canvas id="myCanvas" width="200" height="200" style="background-color:#efefef;"></canvas>
+
+  <button type="button" onclick="clearInterval(interval)">Try it</button>
+
+  <br />
+
+  <div id="html"></div>
+</body>
+
+</html>

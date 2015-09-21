@@ -1,0 +1,110 @@
+/*
+must: 
+  create folder "output" in root of drive
+  create spreadsheet for logging, and input sharing URL into var ss = SpreadsheetApp.openByUrl( urlgoeshere );
+  create label called "inlineImg"
+*/
+
+function grabAttachments(){
+  var moreLeft = 1;
+  var index = 45;
+  var label = GmailApp.getUserLabelByName("inlineImg");
+  var root = DriveApp.getRootFolder();
+  var output = root.getFoldersByName("output").next();
+  
+  var ss = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/1MPYYlWb4iD0Cs9AHfEVr37zrtRhkpiiUyHi8HRxHtc4/edit?usp=sharing');
+  var sheetNum = ss.getSheets().length;
+  //var attemptNum = 'Attempt ' + sheetNum;
+  var attemptNum = 'Final ' + sheetNum;
+  ss.insertSheet(attemptNum);
+  var sheet = ss.getActiveSheet();
+  //sheet.appendRow(['Begin','Attempt',sheetNum]);
+  sheet.appendRow(['Begin','Final',sheetNum]);
+  
+  output.createFolder(attemptNum);
+  var outFolder = output.getFoldersByName(attemptNum).next();
+  
+  while(moreLeft){
+    
+    Utilities.sleep(1000);
+    var threads = GmailApp.search('has:attachment', index * 10, 10);
+    
+    if(threads.length < 9){
+      moreLeft = 0;
+      sheet.appendRow(['threads.length<9, no more emails soon']);
+    }
+    
+    index++;
+    
+    for(var i = 0; i < threads.length; i++){
+      
+      Utilities.sleep(1000);
+      var msgs = threads[i].getMessages();
+      sheet.appendRow([index-1, threads[i].getFirstMessageSubject(), "Msgs in thread: " + msgs.length, "Thread Id: " + threads[i].getId()]);
+
+      for(var j = 0; j < msgs.length; j++){
+        var attachments = msgs[j].getAttachments();
+        if(attachments.length > 0) {
+          
+          for(var k = 0; k < attachments.length; k++){
+            if(attachments[k].getSize() < 9999000){
+              var myBlob = attachments[k].copyBlob();
+               
+                outFolder.createFile(myBlob);
+                sheet.appendRow(['', "Attachments: " + attachments.length, attachments[k].getName(), msgs[j].getSubject(), msgs[j].getDate(), msgs[j].getFrom()]);
+              
+            } else {
+              sheet.appendRow(['', 'Attachment is too large.', attachments[k].getName(), msgs[j].getSubject(), msgs[j].getDate(), msgs[j].getFrom()]); 
+            }
+          }
+        } else {
+          Utilities.sleep(1000);
+          label.addToThread(threads[i]);
+          sheet.appendRow(['','','inline image detected']); 
+        }
+      }
+    }
+    
+  }
+  sheet.appendRow(["All Done"]);
+  
+}
+
+
+/*
+Pseudocode:
+
+While there are still items left to go through
+    grab the next 50 threads of inbox
+    for each 50
+        if there's an attachment, grab it
+            for all attachments
+                add it to a folder
+                add it to an excel sheet, name, name of file
+                
+                
+                
+1) grab spreadsheet by URL
+2) add new named sheet for cleanliness
+3) parse through threads in your gmail, 50 at a time (limit to how many threads you can grab)
+  threads[   
+     thread[
+         message[
+            attachments[
+            
+            ]
+         
+         ]
+         message[
+            attachments[
+            
+            ]
+         ]
+     
+     ]
+     thread[
+       ...
+     ]
+  ]
+    
+*/
